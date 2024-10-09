@@ -1,0 +1,196 @@
+export_library
+{
+
+	rl_color :: struct
+	{
+		r : c_uchar;
+		g : c_uchar;
+		b : c_uchar;
+		a : c_uchar;
+	}
+
+	rl_vector2 :: struct
+	{
+		x: f32;
+		y: f32;
+	}
+
+	ConfigFlags :: enum c_int {
+		FLAG_VSYNC_HINT         = 0x00000040;   // Set to try enabling V-Sync on GPU
+		FLAG_FULLSCREEN_MODE    = 0x00000002;   // Set to run program in fullscreen
+		FLAG_WINDOW_RESIZABLE   = 0x00000004;   // Set to allow resizable window
+		FLAG_WINDOW_UNDECORATED = 0x00000008;   // Set to disable window decoration (frame and buttons)
+		FLAG_WINDOW_HIDDEN      = 0x00000080;   // Set to hide window
+		FLAG_WINDOW_MINIMIZED   = 0x00000200;   // Set to minimize window (iconify)
+		FLAG_WINDOW_MAXIMIZED   = 0x00000400;   // Set to maximize window (expanded to monitor)
+		FLAG_WINDOW_UNFOCUSED   = 0x00000800;   // Set to window non focused
+		FLAG_WINDOW_TOPMOST     = 0x00001000;   // Set to window always on top
+		FLAG_WINDOW_ALWAYS_RUN  = 0x00000100;   // Set to allow windows running while minimized
+		FLAG_WINDOW_TRANSPARENT = 0x00000010;   // Set to allow transparent framebuffer
+		FLAG_WINDOW_HIGHDPI     = 0x00002000;   // Set to support HighDPI
+		FLAG_WINDOW_MOUSE_PASSTHROUGH = 0x00004000; // Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+		FLAG_BORDERLESS_WINDOWED_MODE = 0x00008000; // Set to run program in borderless windowed mode
+		FLAG_MSAA_4X_HINT       = 0x00000020;   // Set to try enabling MSAA 4X
+		FLAG_INTERLACED_HINT    = 0x00010000;    // Set to try enabling interlaced video format (for V3D)
+	}
+
+	rl_keyboard_key :: enum c_int {
+		rl_key_null            = 0;        // Key: NULL, used for no key pressed
+		// Alphanumeric keys
+		rl_key_apostrophe      = 39;       // Key: '
+		rl_key_comma           = 44;       // Key: ,
+		rl_key_minus           = 45;       // Key: -
+		rl_key_period          = 46;       // Key: .
+		rl_key_slash           = 47;       // Key: /
+		rl_key_zero            = 48;       // Key: 0
+		rl_key_one             = 49;       // Key: 1
+		rl_key_two             = 50;       // Key: 2
+		rl_key_three           = 51;       // Key: 3
+		rl_key_four            = 52;       // Key: 4
+		rl_key_five            = 53;       // Key: 5
+		rl_key_six             = 54;       // Key: 6
+		rl_key_seven           = 55;       // Key: 7
+		rl_key_eight           = 56;       // Key: 8
+		rl_key_nine            = 57;       // Key: 9
+		rl_key_semicolon       = 59;       // Key: ;
+		rl_key_equal           = 61;       // Key: =
+		rl_key_a               = 65;       // Key: A | a
+		rl_key_b               = 66;       // Key: B | b
+		rl_key_c               = 67;       // Key: C | c
+		rl_key_d               = 68;       // Key: D | d
+		rl_key_e               = 69;       // Key: E | e
+		rl_key_f               = 70;       // Key: F | f
+		rl_key_g               = 71;       // Key: G | g
+		rl_key_h               = 72;       // Key: H | h
+		rl_key_i               = 73;       // Key: I | i
+		rl_key_j               = 74;       // Key: J | j
+		rl_key_k               = 75;       // Key: K | k
+		rl_key_l               = 76;       // Key: L | l
+		rl_key_m               = 77;       // Key: M | m
+		rl_key_n               = 78;       // Key: N | n
+		rl_key_o               = 79;       // Key: O | o
+		rl_key_p               = 80;       // Key: P | p
+		rl_key_q               = 81;       // Key: Q | q
+		rl_key_r               = 82;       // Key: R | r
+		rl_key_s               = 83;       // Key: S | s
+		rl_key_t               = 84;       // Key: T | t
+		rl_key_u               = 85;       // Key: U | u
+		rl_key_v               = 86;       // Key: V | v
+		rl_key_w               = 87;       // Key: W | w
+		rl_key_x               = 88;       // Key: X | x
+		rl_key_y               = 89;       // Key: Y | y
+		rl_key_z               = 90;       // Key: Z | z
+		rl_key_left_bracket    = 91;       // Key: [
+		rl_key_backslash       = 92;       // Key: '\'
+		rl_key_right_bracket   = 93;       // Key: ]
+		rl_key_grave           = 96;       // Key: `
+		// Function keys
+		rl_key_space           = 32;       // Key: Space
+		rl_key_escape          = 256;      // Key: Esc
+		rl_key_enter           = 257;      // Key: Enter
+		rl_key_tab             = 258;      // Key: Tab
+		rl_key_backspace       = 259;      // Key: Backspace
+		rl_key_insert          = 260;      // Key: Ins
+		rl_key_delete          = 261;      // Key: Del
+		rl_key_right           = 262;      // Key: Cursor right
+		rl_key_left            = 263;      // Key: Cursor left
+		rl_key_down            = 264;      // Key: Cursor down
+		rl_key_up              = 265;      // Key: Cursor up
+		rl_key_page_up         = 266;      // Key: Page up
+		rl_key_page_down       = 267;      // Key: Page down
+		rl_key_home            = 268;      // Key: Home
+		rl_key_end             = 269;      // Key: End
+		rl_key_caps_lock       = 280;      // Key: Caps lock
+		rl_key_scroll_lock     = 281;      // Key: Scroll down
+		rl_key_num_lock        = 282;      // Key: Num lock
+		rl_key_print_screen    = 283;      // Key: Print screen
+		rl_key_pause           = 284;      // Key: Pause
+		rl_key_f1              = 290;      // Key: F1
+		rl_key_f2              = 291;      // Key: F2
+		rl_key_f3              = 292;      // Key: F3
+		rl_key_f4              = 293;      // Key: F4
+		rl_key_f5              = 294;      // Key: F5
+		rl_key_f6              = 295;      // Key: F6
+		rl_key_f7              = 296;      // Key: F7
+		rl_key_f8              = 297;      // Key: F8
+		rl_key_f9              = 298;      // Key: F9
+		rl_key_f10             = 299;      // Key: F10
+		rl_key_f11             = 300;      // Key: F11
+		rl_key_f12             = 301;      // Key: F12
+		rl_key_left_shift      = 340;      // Key: Shift left
+		rl_key_left_control    = 341;      // Key: Control left
+		rl_key_left_alt        = 342;      // Key: Alt left
+		rl_key_left_super      = 343;      // Key: Super left
+		rl_key_right_shift     = 344;      // Key: Shift right
+		rl_key_right_control   = 345;      // Key: Control right
+		rl_key_right_alt       = 346;      // Key: Alt right
+		rl_key_right_super     = 347;      // Key: Super right
+		rl_key_kb_menu         = 348;      // Key: KB menu
+		// Keypad keys
+		rl_key_kp_0            = 320;      // Key: Keypad 0
+		rl_key_kp_1            = 321;      // Key: Keypad 1
+		rl_key_kp_2            = 322;      // Key: Keypad 2
+		rl_key_kp_3            = 323;      // Key: Keypad 3
+		rl_key_kp_4            = 324;      // Key: Keypad 4
+		rl_key_kp_5            = 325;      // Key: Keypad 5
+		rl_key_kp_6            = 326;      // Key: Keypad 6
+		rl_key_kp_7            = 327;      // Key: Keypad 7
+		rl_key_kp_8            = 328;      // Key: Keypad 8
+		rl_key_kp_9            = 329;      // Key: Keypad 9
+		rl_key_kp_decimal      = 330;      // Key: Keypad .
+		rl_key_kp_divide       = 331;      // Key: Keypad /
+		rl_key_kp_multiply     = 332;      // Key: Keypad *
+		rl_key_kp_subtract     = 333;      // Key: Keypad -
+		rl_key_kp_add          = 334;      // Key: Keypad +
+		rl_key_kp_enter        = 335;      // Key: Keypad Enter
+		rl_key_kp_equal        = 336;      // Key: Keypad =
+		// Android key buttons
+		rl_key_back            = 4;        // Key: Android back button
+		rl_key_menu            = 5;        // Key: Android menu button
+		rl_key_volume_up       = 24;       // Key: Android volume up button
+		rl_key_volume_down     = 25;       // Key: Android volume down button
+	}
+
+
+	rl_lightgray :: define rl_color =  { 200, 200, 200, 255 };
+	rl_gray :: define rl_color =       { 130, 130, 130, 255 };
+	rl_darkgray :: define rl_color =   { 80, 80, 80, 255 };
+	rl_yellow :: define rl_color =     { 253, 249, 0, 255 };
+	rl_gold :: define rl_color =       { 255, 203, 0, 255 };
+	rl_orange :: define rl_color =     { 255, 161, 0, 255 };
+	rl_pink :: define rl_color =       { 255, 109, 194, 255 };
+	rl_red :: define rl_color =        { 230, 41, 55, 255 };
+	rl_maroon :: define rl_color =     { 190, 33, 55, 255 };
+	rl_green :: define rl_color =      { 0, 228, 48, 255 };
+	rl_lime :: define rl_color =       { 0, 158, 47, 255 };
+	rl_darkgreen :: define rl_color =  { 0, 117, 44, 255 };
+	rl_skyblue :: define rl_color =    { 102, 191, 255, 255 };
+	rl_blue :: define rl_color =       { 0, 121, 241, 255 };
+	rl_darkblue :: define rl_color =   { 0, 82, 172, 255 };
+	rl_purple :: define rl_color =     { 200, 122, 255, 255 };
+	rl_violet :: define rl_color =     { 135, 60, 190, 255 };
+	rl_darkpurple :: define rl_color = { 112, 31, 126, 255 };
+	rl_beige :: define rl_color =      { 211, 176, 131, 255 };
+	rl_brown :: define rl_color =      { 127, 106, 79, 255 };
+	rl_darkbrown :: define rl_color =  { 76, 63, 47, 255 };
+	rl_white :: define rl_color =      { 255, 255, 255, 255 };
+	rl_black :: define rl_color =      { 0, 0, 0, 255 };
+	rl_blank :: define rl_color =      { 0, 0, 0, 0 };
+	rl_magenta :: define rl_color =    { 255, 0, 255, 255 };
+	rl_raywhite :: define rl_color =   { 245, 245, 245, 255 };
+
+
+	rl_init_window                      :: fn (width: c_int, height: c_int, title: c_char&) = extern "InitWindow";
+	rl_set_config_flags :: fn(flags : c_uint) = extern "SetConfigFlags";
+	rl_begin_drawing :: fn() = extern "BeginDrawing";
+	rl_end_drawing :: fn() = extern "EndDrawing";
+	rl_window_should_close :: fn() -> bool = extern "WindowShouldClose";
+	rl_draw_rectangle :: fn(pos_x : c_int, pos_y : c_int, width : c_int, height : c_int, color : rl_color) = extern "DrawRectangle";
+	rl_clear_background :: fn(color : rl_color) = extern "ClearBackground";
+	rl_get_frame_time :: fn() -> f32 = extern "GetFrameTime";
+	rl_is_key_pressed :: fn(key: c_int) -> bool = extern "IsKeyPressed";
+	rl_set_random_seed :: fn(seed: c_uint) = extern "SetRandomSeed";
+	rl_get_random_value :: fn(min: c_int, max: c_int) -> c_int = extern "GetRandomValue";
+	rl_get_time :: fn() -> f64 = extern "GetTime";
+}
+

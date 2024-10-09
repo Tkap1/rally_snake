@@ -1,0 +1,28 @@
+targets =
+[
+    default =
+    [
+        links =
+        [
+            x64_linux_gcc =
+            [
+                "raylib"
+            ],
+
+            x64_windows_msvc =
+            [
+                "raylib",
+                "gdi32",
+                "user32",
+                "shell32"
+            ],
+
+            x64_windows_mingw =
+            [
+                "raylib"
+            ]
+        ]
+    ]
+
+]
+
