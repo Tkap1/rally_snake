@@ -1,0 +1,251 @@
+import
+{
+	"std";
+	"clib";
+	"raylib";
+}
+
+assert :: fn(cond: bool, location: string)
+{
+	if(!cond) {
+		std_io_print("Assertion failed at {}", location);
+		clib_exit(1);
+	}
+}
+
+read_file :: fn(path: string, out_size: usize&) -> string
+{
+	file: std_io_file;
+	result: string;
+	err: std_io_file_error;
+	err = std_io_file_open(file&, path, STD_IO_FILE_MODE_READ, STD_IO_FILE_FLAG_NONE);
+	assert(err == 0, location_of());
+	std_io_file_get_size(file&, out_size) as void;
+	err = std_io_file_read_to_end(file&, result&);
+	assert(err == 0, location_of());
+	return result;
+}
+
+s_v2i :: struct
+{
+	x: s32;
+	y: s32;
+}
+
+s_game :: struct {
+	update_timer : f64;
+	snake_len: s32;
+	snake_arr: s_v2i[512];
+	reset: bool;
+	dir: s_v2i;
+	input_count: s32;
+	input_arr: s_v2i[16];
+	apple: s_v2i;
+}
+
+c_window_size :: define s32 = 800;
+c_updates_per_second :: define s32 = 10;
+c_update_delay :: define f64 = 1.0 / c_updates_per_second;
+c_tile_size :: define s32 = 32;
+c_tile_count :: define s32 = c_window_size / c_tile_size;
+
+game : s_game;
+
+main :: fn (args: u8&&, arg_count: usize) -> u8
+{
+	rl_set_config_flags(FLAG_VSYNC_HINT);
+	rl_init_window(c_window_size, c_window_size, "soulfoam\0".data as c_char&);
+
+	game.reset = true;
+	game.update_timer = c_update_delay;
+
+	rl_set_random_seed((rl_get_time() * 1234) as u32);
+
+	while(!rl_window_should_close()) {
+
+		game.update_timer += rl_get_frame_time();
+		while(game.update_timer >= c_update_delay) {
+			game.update_timer -= c_update_delay;
+			update();
+		}
+		interp_dt : f64 = game.update_timer / c_update_delay;
+		render(interp_dt as f32);
+	}
+	return 0;
+}
+
+update :: fn()
+{
+	if(game.reset) {
+		game.reset = false;
+		game.snake_len = 1;
+		game.snake_arr[0] = v2i(0, 0);
+		game.dir = s_v2i{};
+		game.input_count = 0;
+		game.apple = spawn_apple();
+	}
+
+	forp(i:s32, game.input_count&) {
+		dir: s_v2i = game.input_arr[i];
+		if(
+			(dir.x != 0 && game.dir.x != 0) ||
+			(dir.y != 0 && game.dir.y != 0)
+		) {
+			remove_and_shift(game.input_arr, i, game.input_count&, size_of(s_v2i));
+			i -= 1;
+		}
+		else {
+			game.dir = dir;
+			remove_and_shift(game.input_arr, i, game.input_count&, size_of(s_v2i));
+			i -= 1;
+			break;
+		}
+	}
+
+	head : s_v2i = game.snake_arr[0];
+	head.x += game.dir.x;
+	head.y += game.dir.y;
+	head.x = circular_index(head.x, c_tile_count);
+	head.y = circular_index(head.y, c_tile_count);
+
+	if(head.x == game.apple.x && head.y == game.apple.y) {
+		game.snake_len += 1;
+		game.apple = spawn_apple();
+	}
+
+	for_snake_tail_reversed(curr:s_v2i&, prev:s_v2i&, i:s32) {
+		curr@ = prev@;
+	}
+
+	for_snake_body(thing: s_v2i&, i:s32) {
+		if(head.x == thing.x && head.y == thing.y) {
+			game.reset = true;
+		}
+	}
+
+	game.snake_arr[0] = head;
+}
+
+render :: fn(interp_dt : f32)
+{
+	rl_begin_drawing();
+	rl_clear_background(rl_black);
+
+	if(rl_is_key_pressed(rl_key_w)) {
+		if(game.input_count < count_of(game.input_arr)) {
+			game.input_arr[game.input_count] = v2i(0, -1);
+			game.input_count += 1;
+		}
+	}
+	if(rl_is_key_pressed(rl_key_s)) {
+		if(game.input_count < count_of(game.input_arr)) {
+			game.input_arr[game.input_count] = v2i(0, 1);
+			game.input_count += 1;
+		}
+	}
+	if(rl_is_key_pressed(rl_key_a)) {
+		if(game.input_count < count_of(game.input_arr)) {
+			game.input_arr[game.input_count] = v2i(-1, 0);
+			game.input_count += 1;
+		}
+	}
+	if(rl_is_key_pressed(rl_key_d)) {
+		if(game.input_count < count_of(game.input_arr)) {
+			game.input_arr[game.input_count] = v2i(1, 0);
+			game.input_count += 1;
+		}
+	}
+
+	for_snake(thing:s_v2i&, i:s32) {
+		rl_draw_rectangle(thing.x * c_tile_size, thing.y * c_tile_size, c_tile_size, c_tile_size, rl_green);
+	}
+
+	{
+		rl_draw_rectangle(game.apple.x * c_tile_size, game.apple.y * c_tile_size, c_tile_size, c_tile_size, rl_red);
+	}
+
+	rl_end_drawing();
+}
+
+v2i :: fn(x: s32, y: s32) -> s_v2i
+{
+	return s_v2i{x, y};
+}
+
+for_snake :: it(declare thing: s_v2i&, declare i2: s32)
+{
+	for(i:s32, game.snake_len) {
+		i2 = i;
+		thing = game.snake_arr[i]&;
+		yield;
+	}
+}
+
+for_snake_body :: it(declare thing2: s_v2i&, declare i2: s32)
+{
+	for_snake(thing:s_v2i&, i:s32) {
+		thing2 = thing;
+		i2 = i;
+		if(i == 0) {
+			continue;
+		}
+		yield;
+	}
+}
+
+for :: it(declare i: s32, end : s32)
+{
+	i = 0;
+	while(i < end) {
+		yield;
+		i += 1;
+	}
+}
+
+forp :: it(declare i: s32, end : s32&)
+{
+	i = 0;
+	while(i < end@) {
+		yield;
+		i += 1;
+	}
+}
+
+remove_and_shift :: fn(arr: void&, index: s32, count: s32&, element_size: usize)
+{
+	assert(index >= 0, location_of());
+	assert(index < count@, location_of());
+	assert(element_size > 0, location_of());
+	assert(count@ > 0, location_of());
+
+	count@ -= 1;
+	to_copy : s32 = count@ - index;
+	clib_memmove(arr + index * element_size, arr + (index + 1) * element_size, to_copy * element_size) as void;
+}
+
+circular_index :: fn(index:s32, size:s32) -> s32
+{
+	assert(size > 0, location_of());
+	if(index >= 0) {
+		return index % size;
+	}
+	return (size - 1) - ((-index - 1) % size);
+}
+
+spawn_apple :: fn() -> s_v2i
+{
+	pos : s_v2i = v2i(rl_get_random_value(0, c_tile_count - 1), rl_get_random_value(0, c_tile_count - 1));
+	return pos;
+}
+
+for_snake_tail_reversed :: it(declare curr:s_v2i&, declare prev:s_v2i&, declare i:s32)
+{
+	i = game.snake_len - 1;
+	while(i >= 1) {
+		curr = game.snake_arr[i]&;
+		prev = game.snake_arr[i - 1]&;
+		yield;
+		i -= 1;
+	}
+}
+

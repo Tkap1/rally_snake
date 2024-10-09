@@ -1,0 +1,25 @@
+targets =
+[
+    default =
+    [
+        output    = "program",
+        libraries = $libraries
+    ],
+
+    release =
+    [
+        output       = "program_release",
+        libraries    = $libraries,
+        optimization = 2,
+        debug        = false
+    ]
+],
+
+$libraries =
+[
+    "../std/std",
+    "../std/os",
+    "../std/clib",
+    "../rally-raylib"
+]
+
